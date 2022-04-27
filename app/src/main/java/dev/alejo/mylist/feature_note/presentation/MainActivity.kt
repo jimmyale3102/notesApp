@@ -1,4 +1,4 @@
-package dev.alejo.mylist
+package dev.alejo.mylist.feature_note.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
