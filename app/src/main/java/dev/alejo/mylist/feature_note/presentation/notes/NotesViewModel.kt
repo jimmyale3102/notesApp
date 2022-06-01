@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.alejo.mylist.feature_note.domain.model.Note
 import dev.alejo.mylist.feature_note.domain.use_case.NoteUseCases
 import dev.alejo.mylist.feature_note.domain.util.NoteOrder
@@ -14,14 +15,16 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class NotesViewModel @Inject constructor(
     private val noteUseCases: NoteUseCases
-): ViewModel() {
+) : ViewModel() {
 
     private val _state = mutableStateOf(NoteState())
-    val state : State<NoteState> = _state
+    val state: State<NoteState> = _state
 
     private var recentlyDeletedNote: Note? = null
+
     private var getNotesJob: Job? = null
 
     init {
@@ -31,8 +34,9 @@ class NotesViewModel @Inject constructor(
     fun onEvent(event: NotesEvent) {
         when (event) {
             is NotesEvent.Order -> {
-                if(state.value.noteOrder::class == event.noteOrder::class
-                    && state.value.noteOrder.orderType == event.noteOrder.orderType) {
+                if (state.value.noteOrder::class == event.noteOrder::class &&
+                    state.value.noteOrder.orderType == event.noteOrder.orderType
+                ) {
                     return
                 }
                 getNotes(event.noteOrder)
@@ -60,7 +64,7 @@ class NotesViewModel @Inject constructor(
     private fun getNotes(noteOrder: NoteOrder) {
         getNotesJob?.cancel()
         getNotesJob = noteUseCases.getNotes(noteOrder)
-            .onEach { notes->
+            .onEach { notes ->
                 _state.value = state.value.copy(
                     notes = notes,
                     noteOrder = noteOrder
